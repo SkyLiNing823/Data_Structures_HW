@@ -1,0 +1,219 @@
+// ---------------------------------------------------------------------------
+#include <vcl.h>
+#pragma hdrstop
+
+#include "Unit1.h"
+#define SWAP(x,y,z) z=x, x=y, y=z;
+// ---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TForm1 *Form1;
+int i, j, k;
+int** W;
+int** A;
+int** T;
+int* D;
+int* E;
+int* found;
+int n;
+int range;
+int limit;
+int largeint;
+int sourceNo;
+
+// ---------------------------------------------------------------------------
+__fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner) {
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Button1Click(TObject *Sender) // Generate G
+{
+	if (W != NULL) {
+		for (i = 0; i < n; i++)
+			delete W[i];
+		delete W;
+	}
+
+	n = StrToInt(Form1->Edit1->Text);
+	range = StrToInt(Form1->Edit2->Text);
+	limit = StrToInt(Form1->Edit3->Text);
+	largeint = StrToInt(Form1->Edit4->Text);
+	sourceNo = StrToInt(Form1->Edit5->Text);
+
+	W = new int*[n];
+	for (i = 0; i < n; i++)
+		W[i] = new int[n];
+
+	srand(time(NULL));
+	for (i = 0; i < n; i++) {
+		for (j = i + 1; j < n; j++) {
+			W[i][j] = rand() % range + 1;
+			if (W[i][j] > limit)
+				W[i][j] = largeint;
+			W[j][i] = W[i][j];
+		}
+		W[i][i] = largeint;
+	}
+
+	StringGrid1->RowCount = n + 1;
+	StringGrid1->ColCount = n + 1;
+	for (i = 1; i < n + 1; i++)
+		StringGrid1->Cells[i][0] = IntToStr(i - 1);
+	for (i = 1; i < n + 1; i++) {
+		StringGrid1->Cells[0][i] = IntToStr(i - 1);
+		for (j = 1; j < n + 1; j++) {
+			StringGrid1->Cells[j][i] = IntToStr(W[i - 1][j - 1]);
+		}
+	}
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Button3Click(TObject *Sender) {  //all pairs
+	if (A != NULL) {
+		for (i = 0; i < n; i++)
+			delete A[i];
+		delete A;
+	}
+
+	A = new int*[n];
+	for (i = 0; i < n; i++)
+		A[i] = new int[n];
+
+	for (i = 0; i < n; i++)
+		for (j = 0; j < n; j++)
+			A[i][j] = W[i][j];
+
+	for (k = 0; k < n; k++) {
+		for (i = 0; i < n; i++)
+			for (j = 0; j < n; j++) {
+				A[i][j] = A[i][j] < A[i][k] + A[k][j] ? A[i][j] :
+					A[i][k] + A[k][j];
+			}
+		A[k][k] = 0;
+	}
+
+	StringGrid2->RowCount = n + 1;
+	StringGrid2->ColCount = n + 1;
+	for (i = 1; i < n + 1; i++)
+		StringGrid2->Cells[i][0] = IntToStr(i - 1);
+	for (i = 1; i < n + 1; i++) {
+		StringGrid2->Cells[0][i] = IntToStr(i - 1);
+		for (j = 1; j < n + 1; j++) {
+			StringGrid2->Cells[j][i] = IntToStr(A[i - 1][j - 1]);
+		}
+	}
+
+}
+// ---------------------------------------------------------------------------
+
+void __fastcall TForm1::Button2Click(TObject *Sender) { // SSAD
+	sourceNo = StrToInt(Form1->Edit5->Text);
+	if (D != NULL) {
+		delete D;
+		delete E;
+		delete found;
+	}
+	D = new int[n];
+	E = new int[n];
+
+    StringGrid4->RowCount = n + 1;
+	StringGrid4->ColCount = n + 1;
+	for (i = 1; i < n + 1; i++)
+    {
+		StringGrid4->Cells[i][0] = IntToStr(i - 1);
+		StringGrid4->Cells[0][i] = IntToStr(i - 1);
+	}
+	int s = 1;
+	found = new int[n];
+	for (j = 0; j < n; j++) {
+		D[j] = W[sourceNo][j];
+		StringGrid4->Cells[s][j+1] = IntToStr(D[j]);
+		E[j] = sourceNo;
+		found[j] = 0;
+	}
+	found[sourceNo] = 1;
+	D[sourceNo] = 0;
+    StringGrid4->Cells[s][sourceNo+1] = IntToStr(0);
+
+	while (true) {
+		int k = -1;
+		int min = largeint;
+		for (i = 0; i < n; i++) {
+			if (found[i] == 0 && D[i] < min) {
+				k = i;
+				min = D[i];
+			}
+		}
+		if (k == -1)
+			break;
+		i = 0;
+		found[k] = 1;
+		for (i = 0; i < n; i++)
+		{
+			if (!found[i] && D[k] + W[k][i] < D[i]) {
+				D[i] = D[k] + W[k][i];
+				E[i] = k;
+			}
+
+		}
+		s++;
+        for(j=1;j<n+1;j++)
+				StringGrid4->Cells[j][s] = IntToStr(D[j-1]);
+	}
+
+	for (i = 0; i < n; i++) {
+		if (i == sourceNo)
+			continue;
+		String s = "-->" + IntToStr(i);
+		for (j = i, k = E[j]; k != sourceNo; j = k, k = E[j])
+			s = "-->" + IntToStr(k) + "--[" + IntToStr(W[k][j]) + "]" + s;
+		s = "The shortest distance from " + IntToStr(sourceNo) + " to " +
+			IntToStr(i) + " is " + D[i] + " with path :" + IntToStr(sourceNo) +
+			"--[" + IntToStr(W[sourceNo][j]) + "]" + s;
+		Memo1->Lines->Add(s);
+	}
+	Memo1->Lines->Add("------------------------------------------------------");
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Button4Click(TObject *Sender) { // transitive closure
+
+	if (T != NULL) {
+		for (i = 0; i < n; i++)
+			delete T[i];
+		delete T;
+	}
+
+	T = new int*[n];
+	for (i = 0; i < n; i++)
+		T[i] = new int[n];
+
+	for (i = 0; i < n; i++)
+		for (j = 0; j < n; j++)
+			T[i][j] = W[i][j];
+
+	for (k = 0; k < n; k++) {
+		for (i = 0; i < n; i++)
+			for (j = 0; j < n; j++) {
+				T[i][j] = T[i][j] < T[i][k] + T[k][j] ? T[i][j] :
+					T[i][k] + T[k][j];
+			}
+		T[k][k] = 0;
+	}
+
+
+	StringGrid3->RowCount = n + 1;
+	StringGrid3->ColCount = n + 1;
+	for (i = 1; i < n + 1; i++)
+		StringGrid3->Cells[i][0] = IntToStr(i - 1);
+	for (i = 1; i < n + 1; i++) {
+		StringGrid3->Cells[0][i] = IntToStr(i - 1);
+		for (j = 1; j < n + 1; j++) {
+			StringGrid3->Cells[j][i] = IntToStr(T[i - 1][j - 1]<largeint?1:0);
+		}
+	}
+
+}
+// ---------------------------------------------------------------------------
+
+

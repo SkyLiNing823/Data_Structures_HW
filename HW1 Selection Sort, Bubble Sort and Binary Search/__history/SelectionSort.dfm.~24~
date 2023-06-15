@@ -1,0 +1,232 @@
+object Form1: TForm1
+  Left = 0
+  Top = 0
+  Caption = 'Selection vs Bubble sorts by '#26446#22825#23527' 2021/09/23 Ver. 0.3'
+  ClientHeight = 578
+  ClientWidth = 952
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+  object Label1: TLabel
+    Left = 86
+    Top = 22
+    Width = 20
+    Height = 13
+    Caption = 'n = '
+  end
+  object Label2: TLabel
+    Left = 760
+    Top = 53
+    Width = 44
+    Height = 13
+    Caption = 'target = '
+  end
+  object Label3: TLabel
+    Left = 64
+    Top = 53
+    Width = 42
+    Height = 13
+    Caption = 'range = '
+  end
+  object Label4: TLabel
+    Left = 303
+    Top = 53
+    Width = 35
+    Height = 13
+    Caption = 'step = '
+  end
+  object Label5: TLabel
+    Left = 274
+    Top = 22
+    Width = 64
+    Height = 13
+    Caption = 'repeatiton = '
+  end
+  object Button1: TButton
+    Left = 50
+    Top = 91
+    Width = 161
+    Height = 34
+    Caption = 'Generate Random Number'
+    TabOrder = 0
+    OnClick = Button1Click
+  end
+  object Edit1: TEdit
+    Left = 112
+    Top = 19
+    Width = 97
+    Height = 21
+    TabOrder = 1
+    Text = '10'
+  end
+  object Memo1: TMemo
+    Left = 48
+    Top = 131
+    Width = 161
+    Height = 137
+    ScrollBars = ssVertical
+    TabOrder = 2
+  end
+  object Edit2: TEdit
+    Left = 112
+    Top = 50
+    Width = 97
+    Height = 21
+    TabOrder = 3
+    Text = '1000'
+  end
+  object Button2: TButton
+    Left = 282
+    Top = 91
+    Width = 161
+    Height = 34
+    Caption = 'Selection Sort'
+    TabOrder = 4
+    OnClick = Button2Click
+  end
+  object Memo2: TMemo
+    Left = 280
+    Top = 131
+    Width = 161
+    Height = 137
+    ScrollBars = ssVertical
+    TabOrder = 5
+  end
+  object CheckBox1: TCheckBox
+    Left = 544
+    Top = 17
+    Width = 129
+    Height = 25
+    Caption = 'Echo print'
+    Checked = True
+    State = cbChecked
+    TabOrder = 6
+  end
+  object CheckBox2: TCheckBox
+    Left = 544
+    Top = 48
+    Width = 129
+    Height = 25
+    Caption = 'Self check'
+    Checked = True
+    State = cbChecked
+    TabOrder = 7
+  end
+  object Memo3: TMemo
+    Left = 512
+    Top = 131
+    Width = 161
+    Height = 137
+    ScrollBars = ssVertical
+    TabOrder = 8
+  end
+  object Memo4: TMemo
+    Left = 746
+    Top = 131
+    Width = 161
+    Height = 137
+    ScrollBars = ssVertical
+    TabOrder = 9
+  end
+  object Button3: TButton
+    Left = 514
+    Top = 91
+    Width = 161
+    Height = 34
+    Caption = 'Bubble Sort'
+    TabOrder = 10
+    OnClick = Button3Click
+  end
+  object Button4: TButton
+    Left = 746
+    Top = 91
+    Width = 161
+    Height = 34
+    Caption = 'Binary Search'
+    TabOrder = 11
+    OnClick = Button4Click
+  end
+  object Edit3: TEdit
+    Left = 810
+    Top = 50
+    Width = 97
+    Height = 21
+    TabOrder = 12
+    Text = '200'
+  end
+  object Edit4: TEdit
+    Left = 344
+    Top = 19
+    Width = 97
+    Height = 21
+    TabOrder = 13
+    Text = '1'
+  end
+  object Edit5: TEdit
+    Left = 344
+    Top = 50
+    Width = 97
+    Height = 21
+    TabOrder = 14
+    Text = 'Edit5'
+  end
+  object Chart1: TChart
+    Left = 48
+    Top = 338
+    Width = 856
+    Height = 220
+    Title.Text.Strings = (
+      'TChart')
+    TabOrder = 15
+    DefaultCanvas = 'TGDIPlusCanvas'
+    ColorPaletteIndex = -2
+    ColorPalette = (
+      255
+      32768
+      4259584
+      16711680
+      16777215
+      8421504
+      16711935
+      8421376
+      8388608
+      128
+      65280
+      32896
+      8388736
+      12632256
+      16776960
+      0
+      12639424
+      15780518
+      15793151
+      10789024)
+    object Series1: TBarSeries
+      BarBrush.Gradient.EndColor = 16777088
+      SeriesColor = 16777088
+      BarWidthPercent = 35
+      DepthPercent = 1
+      Gradient.EndColor = 16777088
+      Sides = 26
+      XValues.Name = 'X'
+      XValues.Order = loAscending
+      YValues.Name = 'Bar'
+      YValues.Order = loNone
+    end
+  end
+  object Button5: TButton
+    Left = 48
+    Top = 293
+    Width = 856
+    Height = 39
+    Caption = 'Load Chart'
+    TabOrder = 16
+    OnClick = Button5Click
+  end
+end

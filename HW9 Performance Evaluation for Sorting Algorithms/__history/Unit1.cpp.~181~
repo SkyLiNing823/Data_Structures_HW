@@ -1,0 +1,568 @@
+// ---------------------------------------------------------------------------
+#include <vcl.h>
+#pragma hdrstop
+#include "Unit1.h"
+#include <time.h>
+// ---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+#pragma package(smart_init)
+
+#pragma resource "*.dfm"
+#define SWAP(x,y,z) (z=x,x=y,y=z)
+
+TForm1 *Form1;
+int* org_data;
+int* data;
+int* tmp;
+int times;
+int n;
+int range;
+int top;
+bool flag1; // Selection sort
+bool flag2; // Insertion sort
+bool flag3; // Bubble sort
+bool flag4; // Quick sort (recursive versions)
+bool flag5; // Quick sort (non-recursive versions)
+bool flag6; // Merge sort (recursive versions)
+bool flag7; // Merge sort (non-recursive versions)
+bool flag8; // Heap sort
+bool flag9; // Radix sort
+
+// ---------------------------------------------------------------------------
+__fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner) {
+}
+
+// ---------------------------------------------------------------------------
+struct Qstack { // stack
+	int left;
+	int right;
+};
+
+Qstack *stack;
+
+void push(int left, int right) {
+	if (top == n * times)
+		Form1->Memo2->Lines->Add("stackfull");
+	else {
+		stack[++top].left = left;
+		stack[top].right = right;
+	}
+}
+
+Qstack pop() {
+	if (top == -1)
+		Form1->Memo2->Lines->Add("stackempty");
+	else
+		return stack[top--];
+}
+
+void SelectionSort(int* data, int n) {
+	int i, j, min, temp;
+	for (i = 0; i < n; i++) {
+		min = i;
+		for (j = i + 1; j < n; j++) {
+			if (data[j] < data[min]) {
+				min = j;
+			}
+		}
+		SWAP(data[i], data[min], temp);
+	}
+}
+
+void InsertionSort(int* data, int n) {
+	for (int i = 1; i < n; i++) {
+		int x = data[i];
+		int j = i - 1;
+		while (x < data[j] && j >= 0) {
+			data[j + 1] = data[j];
+			j--;
+		}
+		data[j + 1] = x;
+	}
+
+}
+
+void BubbleSort(int* data, int n) {
+	int i, j, tmp;
+	for (i = n - 1; i >= 0; i--) {
+		for (j = 1; j < i + 1; j++) {
+			if (data[j - 1] > data[j])
+				SWAP(data[j - 1], data[j], tmp);
+		}
+	}
+}
+
+void QuickSort(int *data, int left, int right) { // using recursive
+	int i, j, target, tmp;
+	if (left < right) {
+		target = data[left];
+		i = left + 1;
+		j = right;
+		do {
+			while (i <= j && data[i] < target)
+				i++;
+			while (i <= j && data[j] >= target)
+				j--;
+			if (i < j)
+				SWAP(data[i], data[j], tmp);
+		}
+		while (i < j);
+		if (left < j)
+			SWAP(data[left], data[j], tmp);
+		QuickSort(data, left, j - 1);
+		QuickSort(data, j + 1, right);
+	}
+}
+
+void QuickSort2(int *data, int left, int right) { // using stack
+	int i, j, target, tmp;
+	top = -1;
+	push(left, right);
+	while (top != -1) {
+		Qstack x = pop();
+		left = x.left;
+		right = x.right;
+		target = data[left];
+		i = left + 1;
+		j = right;
+		do {
+			while (i <= j && data[i] < target)
+				i++;
+			while (i <= j && data[j] >= target)
+				j--;
+			if (i < j)
+				SWAP(data[i], data[j], tmp);
+		}
+		while (i < j);
+		if (left < j)
+			SWAP(data[left], data[j], tmp);
+		if (j + 1 < right)
+			push(j + 1, right);
+		if (left < j - 1)
+			push(left, j - 1);
+	}
+}
+
+void merge(int* C, int k, int* A, int i, int M, int*B, int j, int N) {
+	if (tmp)
+		free(tmp);
+	tmp = new int[times * n];
+	for (int p = i; p <= M; p++)
+		tmp[p] = A[p];
+	for (int p = j; p <= N; p++)
+		tmp[p] = B[p];
+	while (i <= M && j <= N) {
+		if (tmp[i] <= tmp[j])
+			C[k++] = tmp[i++];
+		else
+			C[k++] = tmp[j++];
+	}
+	while (i <= M)
+		C[k++] = tmp[i++];
+	while (j <= N)
+		C[k++] = tmp[j++];
+}
+
+void MergeSort(int* data, int left, int right) { // using recursive
+	int m;
+	if (left < right) {
+		m = (left + right) / 2;
+		MergeSort(data, left, m);
+		MergeSort(data, m + 1, right);
+		merge(data, left, data, left, m, data, m + 1, right);
+	}
+}
+
+void MergeSort2(int* data, int n) { // non-recursive
+	int len = 1;
+	int i;
+	while (len < n) {
+		i = 0;
+		while (i < n - len) {
+			merge(data, i, data, i, i + len - 1, data, i + len,
+				i + 2*len - 1 < n - 1 ? i + 2*len - 1 : n - 1);
+			i = i + 2 * len;
+		}
+		len *= 2;
+	}
+}
+
+void max_heapify(int* data, int start, int end) {
+	int tmp;
+	int dad = start;
+	int son = dad * 2 + 1;
+	while (son <= end) {
+		if (son + 1 <= end && data[son] < data[son + 1])
+			son++;
+		if (data[dad] > data[son])
+			return;
+		else {
+			SWAP(data[dad], data[son], tmp);
+			dad = son;
+			son = dad * 2 + 1;
+		}
+	}
+}
+
+void HeapSort(int* data, int n) {
+	int tmp;
+	for (int i = n / 2 - 1; i >= 0; i--)
+		max_heapify(data, i, n - 1);
+	for (int i = n - 1; i > 0; i--) {
+		SWAP(data[0], data[i], tmp);
+		max_heapify(data, 0, i - 1);
+	}
+}
+
+int getdigit(int max) { // get the max digit
+	int n = 0;
+	while (max > 0) {
+		max /= 10;
+		n++;
+	}
+	return n;
+}
+
+void RadixSort(int* data, int n) {
+	int max = 0;
+	int i, j;
+	int digit;
+	int count[10];
+	int *index = new int[n];
+	int *tmp = new int[n];
+	for (i = 0; i < n; i++)
+		if (data[i] > max)
+			max = data[i];
+	int radix = getdigit(max);
+	int ten = 1;
+	for (i = 1; i <= radix; i++) {
+		for (j = 0; j < 10; j++)
+			count[j] = 0;
+		for (j = 0; j < n; j++) {
+			digit = (data[j] / ten) % 10;
+			count[digit]++;
+		}
+		index[0] = 0;
+		for (j = 1; j < 10; j++)
+			index[j] = index[j - 1] + count[j - 1];
+		for (j = 0; j < n; j++) {
+			digit = (data[j] / ten) % 10;
+			tmp[index[digit]++] = data[j];
+		}
+		for (j = 0; j < n; j++)
+			data[j] = tmp[j];
+		ten *= 10;
+	}
+}
+
+int RandData(int* data, int n, int range) { // rand data
+	int i;
+	for (i = 0; i < n; i++)
+		data[i] = rand() % range + 1;
+}
+
+void getData(int* data, int* original_data, int range) { // copy data
+	int i;
+	for (i = 0; i < range; i++)
+		data[i] = original_data[i];
+}
+
+void printData(double time, int flag) {
+	int i;
+	if (flag == 1)
+		Form1->Memo1->Lines->Add("Selection sort takes " + FloatToStr(time) +
+		" sec.");
+	else if (flag == 2)
+		Form1->Memo1->Lines->Add("Insertion sort takes " + FloatToStr(time) +
+		" sec.");
+	else if (flag == 3)
+		Form1->Memo1->Lines->Add("Bubble sort takes " + FloatToStr(time) +
+		" sec.");
+	else if (flag == 4)
+		Form1->Memo1->Lines->Add("Quick sort (recursive versions) takes " +
+		FloatToStr(time) + " sec.");
+	else if (flag == 5)
+		Form1->Memo1->Lines->Add("Quick sort (non-recursive versions) takes " +
+		FloatToStr(time) + " sec.");
+	else if (flag == 6)
+		Form1->Memo1->Lines->Add("Merge sort (recursive versions) takes " +
+		FloatToStr(time) + " sec.");
+	else if (flag == 7)
+		Form1->Memo1->Lines->Add("Merge sort (non-recursive versions) takes " +
+		FloatToStr(time) + " sec.");
+	else if (flag == 8)
+		Form1->Memo1->Lines->Add("Heap sort takes " + FloatToStr(time) +
+		" sec.");
+	else if (flag == 9)
+		Form1->Memo1->Lines->Add("Radix sort takes " + FloatToStr(time) +
+		" sec.");
+}
+
+void selfCheck(int* data, int n, int flag) {
+	int i;
+	for (i = 0; i < n - 1; i++) {
+		// Form1->Memo2->Lines->Add(IntToStr(data[i]));
+		if (data[i] > data[i + 1])
+			break;
+	}
+	if (i == n - 1) {
+		if (flag == 1)
+			Form1->Memo2->Lines->Add("n = " + IntToStr(n) +
+			" Selection sort finished.");
+		else if (flag == 2)
+			Form1->Memo2->Lines->Add("n = " + IntToStr(n) +
+			" Insertion sort finished.");
+		else if (flag == 3)
+			Form1->Memo2->Lines->Add("n = " + IntToStr(n) +
+			" Bubble sort finished.");
+		else if (flag == 4)
+			Form1->Memo2->Lines->Add("n = " + IntToStr(n) +
+			" Quick sort (recursive versions) finished.");
+		else if (flag == 5)
+			Form1->Memo2->Lines->Add("n = " + IntToStr(n) +
+			" Quick sort (non-recursive versions) finished.");
+		else if (flag == 6)
+			Form1->Memo2->Lines->Add("n = " + IntToStr(n) +
+			" Merge sort (recursive versions) finished.");
+		else if (flag == 7)
+			Form1->Memo2->Lines->Add("n = " + IntToStr(n) +
+			" Merge sort (non-recursive versions) finished.");
+		else if (flag == 8)
+			Form1->Memo2->Lines->Add("n = " + IntToStr(n) +
+			" Heap sort finished.");
+		else if (flag == 9)
+			Form1->Memo2->Lines->Add("n = " + IntToStr(n) +
+			" Radix sort finished.");
+	}
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Button1Click(TObject * Sender) {
+	times = StrToInt(Edit1->Text);
+	n = StrToInt(Edit2->Text);
+	range = StrToInt(Edit3->Text);
+	flag1 = CheckBox1->Checked;
+	flag2 = CheckBox2->Checked;
+	flag3 = CheckBox3->Checked;
+	flag4 = CheckBox4->Checked;
+	flag5 = CheckBox5->Checked;
+	flag6 = CheckBox6->Checked;
+	flag7 = CheckBox7->Checked;
+	flag8 = CheckBox8->Checked;
+	flag9 = CheckBox9->Checked;
+	double* time1 = new double[times];
+	double* time2 = new double[times];
+	double* time3 = new double[times];
+	double* time4 = new double[times];
+	double* time5 = new double[times];
+	double* time6 = new double[times];
+	double* time7 = new double[times];
+	double* time8 = new double[times];
+	double* time9 = new double[times];
+	clock_t t_begin, t_end;
+	int i;
+	Button1->Caption = "Loading..."; // 程式在執行
+	Chart1->RemoveAllSeries();
+	Chart1->Title->Text->Clear();
+	// Clear chart chart title
+	Chart1->Title->Text->Add("Sorting");
+	Chart1->BottomAxis->Title->Caption = "data size"; // x-axis' title
+	Chart1->LeftAxis->Title->Caption = "CPU time (ms)"; // y-axis' title
+	stack = new Qstack[n];
+	for (i = 1; i <= times; i++) {
+		Form1->Memo1->Lines->Add("n = " + IntToStr(i*n));
+		if (org_data)
+			free(org_data);
+		org_data = new int[i * n];
+		srand(time(NULL));
+		RandData(org_data, i * n, range);
+		if (flag1 == true) {
+			if (data)
+				free(data);
+			data = new int[i * n];
+			getData(data, org_data, i * n);
+			t_begin = clock();
+			SelectionSort(data, i * n);
+			t_end = clock();
+			time1[i - 1] = ((double)(t_end - t_begin) / CLOCKS_PER_SEC);
+			printData(((double)(t_end - t_begin) / CLOCKS_PER_SEC), 1);
+			selfCheck(data, i * n, 1);
+		}
+		if (flag2 == true) {
+			if (data)
+				free(data);
+			data = new int[i * n];
+			getData(data, org_data, i * n);
+			t_begin = clock();
+			InsertionSort(data, i * n);
+			t_end = clock();
+			time2[i - 1] = ((double)(t_end - t_begin) / CLOCKS_PER_SEC);
+			printData(((double)(t_end - t_begin) / CLOCKS_PER_SEC), 2);
+			selfCheck(data, i * n, 2);
+		}
+		if (flag3 == true) {
+			if (data)
+				free(data);
+			data = new int[i * n];
+			getData(data, org_data, i * n);
+			t_begin = clock();
+			BubbleSort(data, i * n);
+			t_end = clock();
+			time3[i - 1] = ((double)(t_end - t_begin) / CLOCKS_PER_SEC);
+			printData(((double)(t_end - t_begin) / CLOCKS_PER_SEC), 3);
+			selfCheck(data, i * n, 3);
+		}
+		if (flag4 == true) {
+			if (data)
+				free(data);
+			data = new int[i * n];
+			getData(data, org_data, i * n);
+			t_begin = clock();
+			QuickSort(data, 0, i * n - 1);
+			t_end = clock();
+			time4[i - 1] = ((double)(t_end - t_begin) / CLOCKS_PER_SEC);
+			printData(((double)(t_end - t_begin) / CLOCKS_PER_SEC), 4);
+			selfCheck(data, i * n, 4);
+		}
+		if (flag5 == true) {
+			if (data)
+				free(data);
+			data = new int[i * n];
+			getData(data, org_data, i * n);
+			t_begin = clock();
+			QuickSort2(data, 0, i * n - 1);
+			t_end = clock();
+			time5[i - 1] = ((double)(t_end - t_begin) / CLOCKS_PER_SEC);
+			printData(((double)(t_end - t_begin) / CLOCKS_PER_SEC), 5);
+			selfCheck(data, i * n, 5);
+		}
+		if (flag6 == true) {
+			if (data)
+				free(data);
+			data = new int[i * n];
+			getData(data, org_data, i * n);
+			t_begin = clock();
+			MergeSort(data, 0, i * n - 1);
+			t_end = clock();
+			time6[i - 1] = ((double)(t_end - t_begin) / CLOCKS_PER_SEC);
+			printData(((double)(t_end - t_begin) / CLOCKS_PER_SEC), 6);
+			selfCheck(data, i * n, 6);
+		}
+		if (flag7 == true) {
+			if (data)
+				free(data);
+			data = new int[i * n];
+			getData(data, org_data, i * n);
+			t_begin = clock();
+			MergeSort2(data, i * n);
+			t_end = clock();
+			time7[i - 1] = ((double)(t_end - t_begin) / CLOCKS_PER_SEC);
+			printData(((double)(t_end - t_begin) / CLOCKS_PER_SEC), 7);
+			selfCheck(data, i * n, 7);
+		}
+		if (flag8 == true) {
+			if (data)
+				free(data);
+			data = new int[i * n];
+			getData(data, org_data, i * n);
+			t_begin = clock();
+			HeapSort(data, i * n);
+			t_end = clock();
+			time8[i - 1] = ((double)(t_end - t_begin) / CLOCKS_PER_SEC);
+			printData(((double)(t_end - t_begin) / CLOCKS_PER_SEC), 8);
+			selfCheck(data, i * n, 8);
+		}
+		if (flag9 == true) {
+			if (data)
+				free(data);
+			data = new int[i * n];
+			getData(data, org_data, i * n);
+			t_begin = clock();
+			RadixSort(data, i * n);
+			t_end = clock();
+			time9[i - 1] = ((double)(t_end - t_begin) / CLOCKS_PER_SEC);
+			printData(((double)(t_end - t_begin) / CLOCKS_PER_SEC), 9);
+			selfCheck(data, i * n, 9);
+		}
+		Form1->Memo1->Lines->Add("-------------------------------------------");
+	}
+	Form1->Memo1->Lines->Add
+		("--------------------------------------------------------------------------"
+		);
+
+	Chart1->RemoveAllSeries(); // Remove all previous series
+	for (int j = 0; j < times; j++) { // create series
+		i = 0;
+		if (flag1 == true) {
+			if (j == 0)
+				Chart1->AddSeries(new TLineSeries(this));
+			Chart1->Series[i]->Title = "Selection Sort";
+			// Chart1->Series[i++]->AddArray(time1, times - 1);
+			Chart1->Series[i++]->Add(time1[j], (j + 1)*n);
+		}
+		if (flag2 == true) {
+			if (j == 0)
+				Chart1->AddSeries(new TLineSeries(this));
+			Chart1->Series[i]->Title = "Insertion sort";
+			Chart1->Series[i++]->Add(time2[j], (j + 1)*n);
+		}
+		if (flag3 == true) {
+			if (j == 0)
+				Chart1->AddSeries(new TLineSeries(this));
+			Chart1->Series[i]->Title = "Bubble sort";
+			Chart1->Series[i++]->Add(time3[j], (j + 1)*n);
+		}
+		if (flag4 == true) {
+			if (j == 0)
+				Chart1->AddSeries(new TLineSeries(this));
+			Chart1->Series[i]->Title = "Quick sort (recursive versions)";
+			Chart1->Series[i++]->Add(time4[j], (j + 1)*n);
+		}
+		if (flag5 == true) {
+			if (j == 0)
+				Chart1->AddSeries(new TLineSeries(this));
+			Chart1->Series[i]->Title = "Quick sort (non-recursive versions)";
+			Chart1->Series[i++]->Add(time5[j], (j + 1)*n);
+		}
+		if (flag6 == true) {
+			if (j == 0)
+				Chart1->AddSeries(new TLineSeries(this));
+			Chart1->Series[i]->Title = "Merge sort (recursive versions)";
+			Chart1->Series[i++]->Add(time6[j], (j + 1)*n);
+		}
+		if (flag7 == true) {
+			if (j == 0)
+				Chart1->AddSeries(new TLineSeries(this));
+			Chart1->Series[i]->Title = "Merge sort (non-recursive versions";
+			Chart1->Series[i++]->Add(time7[j], (j + 1)*n);
+		}
+		if (flag8 == true) {
+			if (j == 0)
+				Chart1->AddSeries(new TLineSeries(this));
+			Chart1->Series[i]->Title = "Heap sort";
+			Chart1->Series[i++]->Add(time8[j], (j + 1)*n);
+		}
+		if (flag9 == true) {
+			if (j == 0)
+				Chart1->AddSeries(new TLineSeries(this));
+			Chart1->Series[i]->Title = "Radix sort";
+			Chart1->Series[i++]->Add(time9[j], (j + 1)*n);
+		}
+	}
+
+	/*
+	 Chart1->Series[1]->Title = "Bubble Sort";
+	 for (i = 0; i <= B_times; i++)
+	 Chart1->Series[1]->Add(BubSortTime[i], DataSize[i], clGreen);
+	 */
+
+	for (int j = 0; j < i; j++) // Set marks visible
+	{
+		Chart1->Series[j]->Marks->Visible = true;
+		Chart1->Series[j]->Marks->Style = smsValue;
+	}
+
+	Button1->Caption = "Run"; // 程式執行完成
+}
+// ---------------------------------------------------------------------------

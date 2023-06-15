@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2021/10/09 23:13:28.000.038,=C:\Users\MSI PC\Documents\Embarcadero\Studio\Projects\Project1PCH1.h</Transaction>
+    <Transaction>2021/10/09 23:13:28.000.221,=C:\Users\MSI PC\Documents\Embarcadero\Studio\Projects\Unit1.cpp</Transaction>
+    <Transaction>2021/10/13 14:16:56.000.344,=C:\Users\MSI PC\Documents\Embarcadero\Studio\Projects\Unit1.cpp</Transaction>
+    <Transaction>2021/10/13 14:16:56.000.137,=C:\Users\MSI PC\Documents\Embarcadero\Studio\Projects\Project1PCH1.h</Transaction>
+    <Transaction>2021/10/13 14:17:29.000.016,C:\Users\MSI PC\Documents\Embarcadero\Studio\Projects\Unit1.h=C:\Users\MSI PC\Desktop\資料結構\HW3_Magic_Square\Magic_Square.h</Transaction>
+    <Transaction>2021/10/13 14:17:29.000.016,C:\Users\MSI PC\Documents\Embarcadero\Studio\Projects\Unit1.dfm=C:\Users\MSI PC\Desktop\資料結構\HW3_Magic_Square\Magic_Square.dfm</Transaction>
+    <Transaction>2021/10/13 14:17:29.000.016,C:\Users\MSI PC\Documents\Embarcadero\Studio\Projects\Unit1.cpp=C:\Users\MSI PC\Desktop\資料結構\HW3_Magic_Square\Magic_Square.cpp</Transaction>
+    <Transaction>2021/10/13 14:18:52.000.614,C:\Users\MSI PC\Documents\Embarcadero\Studio\Projects\Project1PCH1.h=C:\Users\MSI PC\Desktop\資料結構\HW3_Magic_Square\Project1PCH1.h</Transaction>
+    <Transaction>2021/10/13 14:19:30.000.859,C:\Users\MSI PC\Documents\Embarcadero\Studio\Projects\Project1.cbproj=C:\Users\MSI PC\Desktop\資料結構\HW3_Magic_Square\ProjectHW3.cbproj</Transaction>
+    <Transaction>2021/10/13 14:19:30.000.846,C:\Users\MSI PC\Desktop\資料結構\HW3_Magic_Square\Project1PCH1.h=C:\Users\MSI PC\Desktop\資料結構\HW3_Magic_Square\ProjectHW3PCH1.h</Transaction>
+  </Transactions>
+</BorlandProject>

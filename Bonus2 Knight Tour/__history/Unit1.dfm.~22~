@@ -1,0 +1,251 @@
+object Form1: TForm1
+  Left = 0
+  Top = 0
+  Caption = 'Bonus 2 by 109705002'#26446#22825#23527
+  ClientHeight = 525
+  ClientWidth = 739
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+  object Splitter1: TSplitter
+    Left = 249
+    Top = 0
+    Height = 525
+    ExplicitLeft = 320
+    ExplicitTop = 224
+    ExplicitHeight = 100
+  end
+  object Panel1: TPanel
+    Left = 0
+    Top = 0
+    Width = 249
+    Height = 525
+    Align = alLeft
+    TabOrder = 0
+    object Label1: TLabel
+      Left = 48
+      Top = 64
+      Width = 20
+      Height = 16
+      Caption = 'n ='
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label2: TLabel
+      Left = 48
+      Top = 90
+      Width = 98
+      Height = 16
+      Caption = 'Starting Position:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label3: TLabel
+      Left = 48
+      Top = 113
+      Width = 153
+      Height = 16
+      Caption = '(x,y) = (            ,            )'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label4: TLabel
+      Left = 48
+      Top = 163
+      Width = 56
+      Height = 16
+      Caption = 'Grid Size:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label5: TLabel
+      Left = 58
+      Top = 190
+      Width = 46
+      Height = 16
+      Caption = '(R,G,B):'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label6: TLabel
+      Left = 48
+      Top = 269
+      Width = 41
+      Height = 16
+      Caption = 'Speed:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Edit1: TEdit
+      Left = 80
+      Top = 63
+      Width = 121
+      Height = 21
+      TabOrder = 0
+      Text = '5'
+    end
+    object Edit2: TEdit
+      Left = 105
+      Top = 112
+      Width = 32
+      Height = 21
+      TabOrder = 1
+      Text = '0'
+    end
+    object Edit3: TEdit
+      Left = 153
+      Top = 112
+      Width = 32
+      Height = 21
+      TabOrder = 2
+      Text = '0'
+    end
+    object CheckBox1: TCheckBox
+      Left = 143
+      Top = 139
+      Width = 97
+      Height = 17
+      Caption = 'Random'
+      TabOrder = 3
+    end
+    object Button1: TButton
+      Left = 48
+      Top = 223
+      Width = 153
+      Height = 33
+      Caption = 'Knight Tour'
+      TabOrder = 4
+      OnClick = Button1Click
+    end
+    object Edit4: TEdit
+      Left = 110
+      Top = 162
+      Width = 91
+      Height = 21
+      TabOrder = 5
+      Text = '32'
+    end
+    object Edit5: TEdit
+      Left = 110
+      Top = 189
+      Width = 27
+      Height = 21
+      TabOrder = 6
+      Text = '100'
+    end
+    object Edit6: TEdit
+      Left = 143
+      Top = 189
+      Width = 27
+      Height = 21
+      TabOrder = 7
+      Text = '100'
+    end
+    object Edit7: TEdit
+      Left = 174
+      Top = 189
+      Width = 27
+      Height = 21
+      TabOrder = 8
+      Text = '255'
+    end
+    object Button2: TButton
+      Left = 48
+      Top = 336
+      Width = 153
+      Height = 33
+      Caption = 'Animation'
+      TabOrder = 9
+      OnClick = Button2Click
+    end
+    object TrackBar1: TTrackBar
+      Left = 48
+      Top = 291
+      Width = 153
+      Height = 45
+      Position = 5
+      TabOrder = 10
+    end
+  end
+  object PageControl1: TPageControl
+    Left = 252
+    Top = 0
+    Width = 487
+    Height = 525
+    ActivePage = TabSheet3
+    Align = alClient
+    TabOrder = 1
+    object TabSheet1: TTabSheet
+      Caption = 'Tour in Memo'
+      object Memo1: TMemo
+        Left = 0
+        Top = 0
+        Width = 479
+        Height = 497
+        Align = alClient
+        ScrollBars = ssBoth
+        TabOrder = 0
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'Tour in StringGrid'
+      ImageIndex = 1
+      object StringGrid1: TStringGrid
+        Left = 0
+        Top = 0
+        Width = 479
+        Height = 497
+        Align = alClient
+        TabOrder = 0
+        OnDrawCell = StringGrid1DrawCell
+      end
+    end
+    object TabSheet3: TTabSheet
+      Caption = 'TabSheet3'
+      ImageIndex = 2
+      object StringGrid2: TStringGrid
+        Left = 0
+        Top = 0
+        Width = 479
+        Height = 497
+        Align = alClient
+        TabOrder = 0
+        OnDrawCell = StringGrid2DrawCell
+        ExplicitLeft = 112
+        ExplicitTop = 144
+        ExplicitWidth = 320
+        ExplicitHeight = 120
+      end
+    end
+  end
+end

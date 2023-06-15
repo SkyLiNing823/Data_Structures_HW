@@ -1,0 +1,360 @@
+// ---------------------------------------------------------------------------
+
+#include <vcl.h>
+#include<stdlib.h>
+#include<time.h>
+#pragma hdrstop
+
+#include "Unit1.h"
+// ---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TForm1 *Form1;
+
+bool initial_state = false; // flag using for initializing
+bool initial_state2 = false;
+bool initial_state3 = false;
+
+int element, target, n, range;
+
+struct node { // declare struct
+	int data;
+	node *next;
+};
+
+// for linked list
+node *first;
+node *last;
+// for linked stack
+node *top;
+// for linked queue
+node *rear = NULL;
+node *front = NULL;
+
+void print(int x) {
+	node *p;
+	String str = "";
+	if (x == 1) { // print linked list
+		for (p = first->next; p != first; p = p->next) {
+			str += IntToStr(p->data) + "-->";
+		}
+		str += "<";
+		Form1->Memo1->Lines->Add(str);
+	}
+	else if (x == 2) { // print linked stack
+		for (p = top->next; p != top; p = p->next) {
+			str += IntToStr(p->data) + "-->";
+		}
+		str += "<";
+		Form1->Memo2->Lines->Add(str);
+
+	}
+	else { // print linked queue
+		for (p = front; p != NULL; p = p->next) {
+			str += IntToStr(p->data) + "-->";
+		}
+		str += "<";
+		Form1->Memo3->Lines->Add(str);
+	}
+}
+
+node* new_node() { // create new node
+	node *p = new node;
+	p->data = element;
+	p->next = NULL;
+	return p;
+}
+
+void initial(int x) { // initializing function
+	element = 0;
+	if (x == 1) {
+		first = new_node();
+		first->next = first;
+		last = first;
+	}
+	else if (x == 2) {
+		top = new_node();
+		top->next = top;
+	}
+}
+
+void insertFirst() { // linked list insert first
+	node *p = new_node();
+	p->next = first->next;
+	first->next = p;
+	if (last == first)
+		last = p;
+}
+
+void insertLast() { // linked list insert last
+	node *p = new_node();
+	last->next = p;
+	p->next = first;
+	last = p;
+}
+
+node* searchTarget() { // linked list search target
+	node*p;
+	for (p = first->next; (p != first && p->data != target); p = p->next);
+	if (p == first)
+		return NULL;
+	return p;
+}
+
+void insertTargetBefore() { // linked list search target before
+	node *p, *q;
+	for (q = first, p = first->next; (p != first && p->data != target);
+	q = p, p = p->next);
+	if (p == first)
+		Form1->Memo1->Lines->Add(IntToStr(target) + " has NOT been found.");
+	else {
+		node *x = new_node();
+		q->next = x;
+		x->next = p;
+		print(1);
+	}
+}
+
+void insertTargetAfter() { // linked list search target after
+	node *p = searchTarget();
+	if (p) {
+		node *x = new_node();
+		x->next = p->next;
+		p->next = x;
+		print(1);
+	}
+	else
+		Form1->Memo1->Lines->Add(IntToStr(target) + " has NOT been found.");
+}
+
+void deleteTarget() { // linked list delete target
+	node *p, *q;
+	for (q = first, p = first->next; (p != first && p->data != target);
+	q = p, p = p->next);
+	if (p == first)
+		Form1->Memo1->Lines->Add(IntToStr(target) + " has NOT been found.");
+	else {
+		q->next = p->next;
+		if (p == last)
+			last = q;
+		free(p);
+		print(1);
+	}
+}
+
+void reverseList() { // linked list reversed
+	node* prev = first;
+	node* current = first->next;
+	node* next;
+	last = current;
+	while(next!=first)
+	{
+        next = current->next;
+		current->next = prev;
+		prev = current;
+		current = next;
+		next = next -> next;
+        Form1->Memo1->Lines->Add(IntToStr(current->data)+"->"+IntToStr(current->next->data));
+		Form1->Memo1->Lines->Add(IntToStr(prev->data)+"->"+IntToStr(current->data)+"->"+IntToStr(next->data));
+	}
+    first->next = current;
+	Form1->Memo1->Lines->Add(IntToStr(first->next->data));
+}
+
+void clearList() { // linked list cleared
+	node *p;
+	for (p = first->next; p != first; p = p->next) {
+		first->next = p->next;
+		free(p);
+	}
+	last = first;
+}
+
+void push() { // linked stack push
+	node *p = new_node();
+	p->next = top->next;
+	top->next = p;
+}
+
+int pop() { // linked stack pop
+	node *p = top->next;
+	if (p == top)
+		return -1;
+	int result = p->data;
+	top->next = p->next;
+	free(p);
+	return result;
+}
+
+void insertQ() { // linked queue insertQ
+	node *p = new_node();
+	if (front == NULL) {
+		front = p;
+		rear = p;
+	}
+	else {
+		rear->next = p;
+		rear = p;
+	}
+	rear = p;
+}
+
+int deleteQ() { // linked queue deleteQ
+	if (front == NULL && rear == NULL)
+		return -1;
+	int data = front->data;
+	if (front == rear) {
+		free(front);
+		front = rear = NULL;
+	}
+	else {
+		node *p = front;
+		front = front->next;
+		free(p);
+	}
+	return data;
+
+}
+
+// ---------------------------------------------------------------------------
+__fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner) {
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Button1Click(TObject *Sender) { // Insert First
+	if (!initial_state) {
+		initial(1);
+		initial_state = true;
+	}
+	element = StrToInt(Form1->Edit1->Text);
+	insertFirst();
+	print(1);
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Button2Click(TObject *Sender) { // Insert Last
+	if (!initial_state) {
+		initial(1);
+		initial_state = true;
+	}
+	element = StrToInt(Form1->Edit1->Text);
+	insertLast();
+	print(1);
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Button3Click(TObject *Sender) { // Search Target
+	if (!initial_state) {
+		Form1->Memo1->Lines->Add("The List is Empty!!!");
+	}
+	else {
+		target = StrToInt(Form1->Edit2->Text);
+		node* x;
+		x = searchTarget();
+		if (x)
+			Form1->Memo1->Lines->Add(IntToStr(x->data) + " has been found.");
+		else
+			Form1->Memo1->Lines->Add(IntToStr(target) + " has NOT been found.");
+	}
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Button4Click(TObject *Sender) // Insert Target Before
+{
+	element = StrToInt(Form1->Edit1->Text);
+	target = StrToInt(Form1->Edit2->Text);
+	insertTargetBefore();
+}
+// ---------------------------------------------------------------------------
+
+void __fastcall TForm1::Button5Click(TObject *Sender) { // Insert Target After
+	element = StrToInt(Form1->Edit1->Text);
+	target = StrToInt(Form1->Edit2->Text);
+	insertTargetAfter();
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Button6Click(TObject *Sender) { // Delete Target
+	target = StrToInt(Form1->Edit2->Text);
+	deleteTarget();
+}
+// ---------------------------------------------------------------------------
+
+void __fastcall TForm1::Button7Click(TObject *Sender)
+{ // Insert n Range Numbers
+	if (!initial_state) {
+		initial(1);
+		initial_state = true;
+	}
+	n = StrToInt(Form1->Edit3->Text);
+	range = StrToInt(Form1->Edit4->Text);
+	srand(time(NULL));
+	for (int i = 0; i < n; i++) {
+		element = (rand() % range) + 1;
+		insertLast();
+	}
+	print(1);
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Button8Click(TObject *Sender) { // Delete List
+	clearList();
+	Form1->Memo1->Lines->Add("List has been CLEARED.");
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Button9Click(TObject *Sender) { // push
+	if (!initial_state2) {
+		initial(2);
+		initial_state2 = true;
+	}
+	element = StrToInt(Form1->Edit5->Text);
+	push();
+	print(2);
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Button10Click(TObject *Sender) { // pop
+	if (!initial_state2) {
+		initial(2);
+		initial_state2 = true;
+	}
+	element = StrToInt(Form1->Edit5->Text);
+	int result = pop();
+	if (result == -1)
+		Form1->Memo2->Lines->Add("Stack is EMPTY.");
+	print(2);
+	Form1->Label6->Caption = "POP Result:" + IntToStr(result);
+
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Button11Click(TObject *Sender) { // InsertQ
+	element = StrToInt(Form1->Edit6->Text);
+	insertQ();
+	print(3);
+
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Button12Click(TObject *Sender) { // DeleteQ
+	element = StrToInt(Form1->Edit6->Text);
+	int result = deleteQ();
+	if (result == -1)
+		Form1->Memo3->Lines->Add("Queue is EMPTY.");
+	print(3);
+	Form1->Label7->Caption = "Deleted:" + IntToStr(result);
+
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Button13Click(TObject *Sender) {
+	if (!initial_state)
+		Form1->Memo1->Lines->Add("The List is Empty!!!");
+	else {
+		if (first != last)
+			reverseList();
+		print(1);
+	}
+}
+// ---------------------------------------------------------------------------

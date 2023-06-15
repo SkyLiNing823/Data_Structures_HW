@@ -1,0 +1,258 @@
+// ---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+
+#include "Unit1.h"
+// ---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TForm1 *Form1;
+
+// ---------------------------------------------------------------------------
+__fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner) {
+}
+
+// ---------------------------------------------------------------------------
+struct poly {
+	poly* previous;
+	int digit;
+	int data;
+	poly* next;
+};
+
+poly* A;
+poly* B;
+poly* C;
+
+poly* create(int digit, int data) {   //create term
+	poly* x = new poly;
+	x->digit = digit;
+	x->data = data;
+	return x;
+}
+
+void deletePoly(poly* X) {    //delete polynomial
+	poly* p = X->next;
+	poly* q;
+	while (p->digit != -1) {
+		q = p->next;
+		free(p);
+		p = q;
+	}
+}
+
+void newterm(poly* X, int digit, int data) { //new term
+	poly* p;
+	poly* q;
+	for (p = X->next; (p->digit < digit) && (p->digit != -1); p = p->next);
+	if (p->digit != digit) {
+		q = create(digit, data); // new node
+		q->previous = p->previous; // new node's previous
+		p->previous->next = q;
+		p->previous = q;
+		q->next = p; // new node's next
+	}
+	else
+		p->data += data;
+}
+
+void add() {   //add A and B
+	if (A == NULL && B == NULL)
+		return;
+	else {
+		poly* p;
+		poly* q;
+		poly* r;
+		bool exist;
+		if (C) // ªì©l¤Æ
+				deletePoly(C);
+		C = create(-1, 0);
+		C->next = C;
+		C->previous = C;
+		q = C;
+		for (p = A->next; p->digit != -1; p = p->next) {
+			q->next = create(p->digit, p->data);
+			q->next->previous = q;
+			q->next->next = C;
+			q = q->next;
+			C->previous = q;
+		}
+		for (p = B->next; p->digit != -1; p = p->next) {
+			exist = false;
+			for (q = C->next; q->digit <= p->digit && q->digit != -1;
+			q = q->next) {
+				if (q->digit == p->digit) {
+					q->data += p->data;
+					exist = true;
+				}
+			}
+			if (!exist) {
+				r = create(p->digit, p->data); // new node
+				r->previous = q->previous; // new node's previous
+				q->previous->next = r;
+				q->previous = r;
+				r->next = q; // new node's next
+			}
+		}
+	}
+
+}
+
+void print(poly * X, int flag, int memo) {    //print polynomial
+	poly* p;
+	String str;
+	if (flag == 1) {
+		str = "A: ";
+	}
+	else if (flag == 2) {
+		str = "B: ";
+	}
+	else {
+		str = "C: ";
+	}
+	if (X == NULL)
+		str += "NULL";
+	else {
+		for (p = X->previous; p->digit != -1; p = p->previous) {
+			if (p->data != 0) {
+				if (p->data > 0)
+					str += IntToStr(p->data);
+				else
+					str += "(" + IntToStr(p->data) + ")";
+				if (p->digit > 0) {
+					str += "x";
+					if (p->digit > 2)
+						str += "^" + IntToStr(p->digit);
+				}
+				if (p->previous->digit != -1)
+					str += " + ";
+			}
+			else if (str.Length() == 3 && p->digit == 0)
+				str += "0";
+		}
+	}
+	if (memo == 1)
+		Form1->Memo1->Lines->Add(str);
+	else
+		Form1->Memo2->Lines->Add(str);
+
+}
+
+void print2(poly * X, int flag, int memo) {  //print negative without ()
+	poly* p;
+	String str;
+	if (flag == 1) {
+		str = "A: ";
+	}
+	else if (flag == 2) {
+		str = "B: ";
+	}
+	else {
+		str = "C: ";
+	}
+	if (X == NULL)
+		str += "NULL";
+	else {
+		for (p = X->previous; p->digit != -1; p = p->previous) {
+			if (p->data != 0) {
+				if (p->data > 0)
+					str += IntToStr(p->data);
+				else {
+					if (str.Length() == 3)
+						str += " - ";
+					str += IntToStr(-1 * p->data);
+				}
+				if (p->digit > 0) {
+					str += "x";
+					if (p->digit > 2)
+						str += "^" + IntToStr(p->digit);
+				}
+				if (p->previous->digit != -1 && p->previous->data > 0)
+					str += " + ";
+				else if (p->previous->data < 0)
+					str += " - ";
+			}
+			else if (p->previous->data < 0)
+				str += " - ";
+			else if (str.Length() == 3 && p->digit == 0)
+				str += "0";
+		}
+	}
+	if (memo == 1)
+		Form1->Memo1->Lines->Add(str);
+	else
+		Form1->Memo2->Lines->Add(str);
+
+}
+
+void __fastcall TForm1::Button1Click(TObject * Sender) {   //new term in A
+	if (A == NULL) {   //initialize
+		A = create(-1, 0);
+		A->next = A;
+		A->previous = A;
+	}
+	int data = StrToInt(Form1->Edit1->Text);
+	int digit = StrToInt(Form1->Edit2->Text);
+	newterm(A, digit, data);
+	print(A, 1, 1);
+}
+// ---------------------------------------------------------------------------
+
+void __fastcall TForm1::Button2Click(TObject * Sender) {  //new term in B
+	if (B == NULL) {   //initialize
+		B = create(-1, 0);
+		B->next = B;
+		B->previous = B;
+	}
+	int data = StrToInt(Form1->Edit1->Text);
+	int digit = StrToInt(Form1->Edit2->Text);
+	newterm(B, digit, data);
+	print(B, 2, 1);
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Button3Click(TObject *Sender) {    //Random A,B
+	int maxExpo = StrToInt(Form1->Edit3->Text);
+	int maxRange = StrToInt(Form1->Edit4->Text);
+	poly* p;
+	srand(time(NULL));
+	if (A)
+		deletePoly(A);
+	if (B)
+		deletePoly(B);
+	A = create(-1, 0);
+	A->next = A;
+	A->previous = A;
+	B = create(-1, 0);
+	B->next = B;
+	B->previous = B;
+	for (int i = 0; i <= maxExpo; i++) {
+		int data = rand() % (2*maxRange) + 1 - maxRange;
+		newterm(A, i, data);
+		data = rand() % (2*maxRange) + 1 - maxRange;
+		newterm(B, i, data);
+	}
+	print(A, 1, 1);
+	print(B, 2, 1);
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Button4Click(TObject *Sender) {  //generate C
+	add();
+	print(A, 1, 2);
+	print(B, 2, 2);
+	print(C, 3, 2);
+	Form1->Memo2->Lines->Add("--------------------------");
+	print2(A, 1, 2);
+	print2(B, 2, 2);
+	print2(C, 3, 2);
+	Form1->Memo2->Lines->Add("=======================================");
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Button5Click(TObject *Sender) { //delete A,B
+	deletePoly(A);
+	deletePoly(B);
+}
+// ---------------------------------------------------------------------------

@@ -1,0 +1,221 @@
+// ---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+
+#include "Unit1.h"
+# define DIR 8
+// ---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TForm1 *Form1;
+
+// ---------------------------------------------------------------------------
+__fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner) {
+}
+// ---------------------------------------------------------------------------
+
+struct Cood {
+	int dx, dy;
+};
+
+struct Step {
+	int x, y;
+};
+
+struct Moves {
+	Step pos;
+	int moves;
+};
+
+Cood offset[DIR];
+
+// ------------------ Set up the offset table for the knight moves
+void setting() {
+	offset[0].dx = -2;
+	offset[0].dy = 1;
+	offset[1].dx = -1;
+	offset[1].dy = 2;
+	offset[2].dx = 1;
+	offset[2].dy = 2;
+	offset[3].dx = 2;
+	offset[3].dy = 1;
+	offset[4].dx = 2;
+	offset[4].dy = -1;
+	offset[5].dx = 1;
+	offset[5].dy = -2;
+	offset[6].dx = -1;
+	offset[6].dy = -2;
+	offset[7].dx = -2;
+	offset[7].dy = -1;
+}
+
+Moves next[DIR]; // next is an array of 8 element with type struct Move
+Step step;
+Step start;
+int **K;
+int n;
+int X;
+int Y;
+int i, j, k;
+
+struct Step nextMove(Step step, int k) {
+	Step test;
+
+	test.x = step.x + offset[k].dx;
+	test.y = step.y + offset[k].dy;
+
+	return test; // return the next step of the current step
+}
+
+bool InBoard(Step test) // check  whether test is within the board
+{
+	return (test.x >= 0 && test.x < n) && (test.y >= 0 && test.y < n);
+}
+
+bool Empty(Step test) // Check  whether test is an empty cell
+{
+	return (K[test.x][test.y] == 0);
+}
+
+bool KnightTour(Step step, int flag) {
+	int data, k, nSquare = n * n, cnt, p, min;
+	Step test;
+	K[step.x][step.y] = 1; // set the starting step
+	if (flag == 1)
+		Form1->StringGrid2->Cells[step.x][step.y] = IntToStr(1);
+	for (data = 2; data <= nSquare; data++) {
+		for (cnt = 0, k = 0; k < DIR;
+		k++) // collect all legal next steps in next[]
+		{
+			test = nextMove(step, k);
+			if (InBoard(test) && Empty(test)) {
+				next[cnt].pos = test; // record test as a legal next move
+				next[cnt++].moves = 0; // init/reset the #moves
+			}
+		} // cnt counts the total number of legal moves of the current step
+		if (cnt == 0)
+			break; // No solution!
+		for (p = 0; p < cnt; p++) // compute each legal move's next moves
+		{
+			step = next[p].pos; // step.x = next[p].x;  step.y = next[p].y;
+			for (k = 0; k < DIR; k++) {
+				test = nextMove(step, k);
+				if (InBoard(test) && Empty(test))
+					next[p].moves++;
+				// test is a legal move for step (one of the next moves)
+			}
+		} // all legal moves' next moves are computed
+		for (min = 0, i = 1; i < cnt; i++)
+			if (next[i].moves < next[min].moves)
+				min = i;
+		// find the next move which has the minimum next moves
+		step = next[min].pos;
+		K[step.x][step.y] = data; // step is the next move
+		if (flag == 1) {
+			Form1->StringGrid2->Cells[step.y][step.x] = IntToStr(data);
+			Sleep((Form1->TrackBar1->Position)*10); // time for moving to next
+			Form1->StringGrid2->Refresh();
+		}
+	}
+	return (data > nSquare);
+}
+
+void printKnight(int n) {
+	int gridsize = StrToInt(Form1->Edit4->Text);
+	String str;
+	for (i = 0; i < n; i++) {
+		str = "";
+		for (j = 0; j < n; j++) {
+			for (int k = IntToStr(K[i][j]).Length();
+			k < IntToStr(n * n).Length(); k++)
+				str += "  ";
+			str += IntToStr(K[i][j]) + "  ";
+		}
+		Form1->Memo1->Lines->Add(str);
+	}
+	Form1->Memo1->Lines->Add("-----------------------------------------");
+	Form1->StringGrid1->RowCount = n;
+	Form1->StringGrid1->ColCount = n;
+	Form1->StringGrid1->DefaultRowHeight = gridsize;
+	Form1->StringGrid1->DefaultColWidth = gridsize;
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < n; j++) {
+			Form1->StringGrid1->Cells[j][i] = IntToStr(K[i][j]);
+		}
+	}
+
+}
+
+// ------------------------------
+void __fastcall TForm1::Button1Click(TObject * Sender) {
+	if (K) {
+		for (i = 0; i < n; i++)
+			delete(K[i]);
+		delete(K);
+	}
+	setting();
+	n = StrToInt(Form1->Edit1->Text);
+	K = new int*[n];
+	for (i = 0; i < n; i++)
+		K[i] = new int[n];
+	for (i = 0; i < n; i++)
+		for (j = 0; j < n; j++)
+			K[i][j] = 0;
+	srand(time(NULL));
+	start.x = (CheckBox1->Checked) ? rand() % n : StrToInt(Form1->Edit2->Text);
+	start.y = (CheckBox1->Checked) ? rand() % n : StrToInt(Form1->Edit3->Text);
+	bool tour = KnightTour(start, 0);
+	if (tour)
+		Memo1->Lines->Add("(x, y) = (" + IntToStr(start.x) + ", " +
+		IntToStr(start.y) + ") O");
+	else
+		Memo1->Lines->Add("(x, y) = (" + IntToStr(start.x) + ", " +
+		IntToStr(start.y) + ") X");
+	printKnight(n);
+}
+// ---------------------------------------------------------------------------
+
+void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol, int ARow,
+	TRect &Rect, TGridDrawState State) {
+	StringGrid1->Canvas->Brush->Color =
+		TColor RGB(StrToInt(Edit5->Text), StrToInt(Edit6->Text),
+		StrToInt(Edit7->Text));
+	StringGrid1->Canvas->FillRect(Rect);
+	AnsiString text = StringGrid1->Cells[ACol][ARow];
+	StringGrid1->Canvas->TextRect(Rect, Rect.Left + 8, Rect.Top + 8, text);
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::Button2Click(TObject *Sender) {
+	PageControl1->ActivePage = TabSheet3;
+	int gridsize = StrToInt(Form1->Edit4->Text);
+	for (i = 0; i < n; i++)
+		for (j = 0; j < n; j++)
+			Form1->StringGrid2->Cells[j][i] = IntToStr(0);
+	StringGrid2->RowCount = n;
+	StringGrid2->ColCount = n;
+	StringGrid2->DefaultRowHeight = gridsize;
+	StringGrid2->DefaultColWidth = gridsize;
+	StringGrid2->Refresh();
+	setting();
+	for (i = 0; i < n; i++)
+		for (j = 0; j < n; j++)
+			K[i][j] = 0;
+	KnightTour(start, 1);
+}
+
+// ---------------------------------------------------------------------------
+void __fastcall TForm1::StringGrid2DrawCell(TObject *Sender, int ACol, int ARow,
+	TRect &Rect, TGridDrawState State) {
+	AnsiString text = StringGrid2->Cells[ACol][ARow];
+	if (text == "0")
+		StringGrid2->Canvas->Brush->Color = TColor RGB(255, 255, 255);
+	else
+		StringGrid2->Canvas->Brush->Color =
+			TColor RGB(StrToInt(Edit5->Text), StrToInt(Edit6->Text),
+		StrToInt(Edit7->Text));
+	StringGrid2->Canvas->FillRect(Rect);
+	StringGrid2->Canvas->TextRect(Rect, Rect.Left + 8, Rect.Top + 8, text);
+}
+// ---------------------------------------------------------------------------
